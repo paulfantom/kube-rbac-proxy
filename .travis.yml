@@ -9,11 +9,6 @@ go_import_path: github.com/brancz/kube-rbac-proxy
 env:
   - GO111MODULE=on
 
-cache:
-  directories:
-  - $GOCACHE
-  - $GOPATH/pkg/mod
-
 services:
   - docker
 
@@ -24,8 +19,10 @@ jobs:
       script:
         - "sudo chmod o+x /etc/docker"
         - "echo ${QUAY_PASSWORD} | docker login -u ${QUAY_USERNAME} --password-stdin quay.io"
-        - '[ "$TRAVIS_BRANCH" = "master" ] && VERSION="$(git rev-parse --abbrev-ref HEAD | tr / -)-$(date +%Y-%m-%d)-$(git rev-parse --short HEAD)" make push'
-        - '[ -n "$TRAVIS_TAG" ] && VERSION=$TRAVIS_TAG make push'
+        - "echo $TRAVIS_TAG"
+        - "echo $TRAVIS_BRANCH"
+        - '[ "$TRAVIS_BRANCH" = "master" ] && VERSION="$(git rev-parse --abbrev-ref HEAD | tr / -)-$(date +%Y-%m-%d)-$(git rev-parse --short HEAD)" make push || :'
+        - '[ -n "$TRAVIS_TAG" ] && VERSION=$TRAVIS_TAG make push || :'
 
 stages:
   - name: test
